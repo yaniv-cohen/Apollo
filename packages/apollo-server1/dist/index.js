@@ -1,17 +1,8 @@
 import express from "express";
 import { ApolloServer, gql } from "apollo-server-express";
-// import { ApolloServer } from "@apollo/server";
-// import { ApolloServer } from "apollo-server-express";
-import Books from "../database/books.js";
-import Authors from "../database/authors.js";
-import { BooksLogic, createBook, getAuthorById, getLivingAuthors, } from "./logic/resolversLogic.js";
+import { addBookToAuthorByName, AuthorsLogic, BooksLogic, createAuthor, createBook, } from "./logic/resolversLogic.js";
 const booksLogic = new BooksLogic();
-// import { gql } from "apollo-server-core";
-// import resolvers from "./resolvers";
-// A schema is a collection of type definitions (hence "typeDefs")
-// that together define the "shape" of queries that are executed against
-// your data.
-// console.log(Books.find((book) => book.id === "5"));
+const authorsLogic = new AuthorsLogic();
 const typeDefs = gql `
   type Book {
     author: String
@@ -25,6 +16,18 @@ const typeDefs = gql `
     id: ID
   }
 
+  input BookInput {
+    author: String
+    country: String
+    imageLink: String
+    language: String
+    link: String
+    pages: Int
+    title: String
+    year: Int
+    id: String
+  }
+
   type Author {
     name: String
     books: [String]
@@ -33,75 +36,82 @@ const typeDefs = gql `
     alive: Alive
   }
 
+  input AuthorInput {
+    name: String
+    books: [String]
+    id: ID
+    age: Int
+    alive: AliveInput
+  }
+
   type Alive {
-    is_alive: Boolean!
+    isAlive: Boolean!
     reason: String
   }
 
-  input BookInput {
-    author: String
-    country: String
-    imageLink: String
-    language: String
-    link: String
-    title: String
-    year: Int
-    id: String
+  input AliveInput {
+    isAlive: Boolean!
+    reason: String
   }
 
-  # type BooksList {
-  #   books: [String]
-  # }
-  # The "Query" type is special: it lists all of the available queries that
-  # clients can execute, along with the return type for each. In this
-  # case, the "books" query returns an array of zero or more Books (defined above).
   type Query {
-    Books: [Book]
-    BookById(id: String): Book
-    BooksWrittenBeforeYear(year: Int): [Book]
-    GetBooksByAuthor(author: String): [Book]
-
-    Authors: [Author]
-    GetAuthorById(id: String): Author
+    GetBooks: [Book]
+    GetBookById(id: String!): Book
+    GetBooksWrittenBeforeYear(year: Int!): [Book]
+    GetBooksByAuthor(author: String!): [Book]
+    GetAuthors: [Author]
+    GetAuthorById(id: String!): Author
     GetLivingAuthors: [Author]
-    GetBooksBySameAuthor(id: String): [String]
-    GetBooksByAuthorsWithMoreBooksThan(minAmount: Int): [Book]
+    GetBooksBySameAuthor(id: String!): [String]
+    GetBooksByAuthorsWithMoreBooksThan(minAmount: Int!): [Book]
+    GetAuthorByName(name: String!): Author
   }
-  type Muatation {
+
+  type Mutation {
     CreateBook(newBook: BookInput): Book
+    CreateAuthor(newAuthor: AuthorInput): Author
+    AddBookToAuthorByName(name: String, title: String): Author
   }
 `;
-// Provide resolver functions for your schema fields
 const resolvers = {
     Query: {
-        Books: () => Books,
+        GetBooks: () => booksLogic.getBooks(),
         GetBooksByAuthorsWithMoreBooksThan: (_, { minAmount }) => booksLogic.getBooksByAuthorsWithMoreBooksThan(minAmount),
-        BookById: (_, { id }) => booksLogic.getBookById(id),
-        BooksWrittenBeforeYear: (_, { year }) => booksLogic.getBooksWrittenBeforeYear(year),
+        GetBookById: (_, { id }) => booksLogic.getBookById(id),
+        GetBooksWrittenBeforeYear: (_, { year }) => booksLogic.getBooksWrittenBeforeYear(year),
         GetBooksByAuthor: (_, { author }) => booksLogic.getBooksByAuthor(author),
-        Authors: () => Authors,
-        GetAuthorById: (_, { id }) => getAuthorById(id),
-        GetLivingAuthors: () => getLivingAuthors(),
-        GetBooksBySameAuthor: (_, { id }) => booksLogic.getBooksBySameAuthor(id),
+        GetAuthors: () => authorsLogic.getAuthors(),
+        GetAuthorById: (_, { id }) => authorsLogic.getAuthorById(id),
+        GetLivingAuthors: () => authorsLogic.getLivingAuthors(),
+        GetBooksBySameAuthor: (_, { id }) => booksLogic.getBooksWithSameAuthorOfBookId(id),
+        GetAuthorByName: (_, { name }) => {
+            return authorsLogic.getAuthorByName(name);
+        },
     },
-    Muatation: {
-        CreateBook: (_, args) => {
-            // let newBook = {
-            //   author: args.author,
-            //   country: args.country,
-            //   imageLink: args.imageLink,
-            //   language: args.language,
-            //   link: args.link,
-            //   pages: args.pages,
-            //   title: args.title,
-            //   year: args.year,
-            //   id: args.id,
-            // };
-            return createBook(args.newBook);
+    Mutation: {
+        CreateBook: (_, { newBook }) => {
+            const addedBook = createBook(newBook);
+            console.log("added", addedBook);
+            return addedBook;
+        },
+        CreateAuthor: (_, { newAuthor }) => {
+            const addedAuthor = createAuthor(newAuthor);
+            console.log("added", addedAuthor);
+            return addedAuthor;
+        },
+        AddBookToAuthorByName: (_, { name, title }) => {
+            const updatedAuthor = addBookToAuthorByName(name, title);
+            console.log("updated to ", updatedAuthor);
+            return updatedAuthor;
         },
     },
 };
-const server = new ApolloServer({ typeDefs, resolvers });
+// const schema = makeExecutableSchema({ typeDefs, resolvers });
+const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: ({ req, res }) => ({ req, res }),
+});
 const app = express();
 await server.start();
 server.applyMiddleware({ app });

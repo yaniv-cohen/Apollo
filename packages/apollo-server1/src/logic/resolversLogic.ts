@@ -1,72 +1,80 @@
-import { Book, BooksList } from "../types/types";
+import { Book, BooksList, AuthorInput } from "../types/types";
 import { Author } from "../types/types";
 
-import { Books } from "../../database/books.js";
-import { Authors } from "../../database/authors.js";
+import { BooksFromDb } from "../../database/books.js";
+import { AuthorsFromDb } from "../../database/authorsTemp.js";
+const Books = [...BooksFromDb];
+const Authors = [...AuthorsFromDb];
 export class BooksLogic {
-  public getBookById(id: String): Book {
-    return Books.find((book) => book.id === id);
+  public getBooks(): Book[] {
+    return Books;
+  }
+  public getBookById(requiredBookId: String): Book {
+    return Books.find((book) => {
+      return book.id === requiredBookId;
+    });
   }
 
-  public getBooksWrittenBeforeYear(year: Number): Book[] {
-    return Books.filter((book) => book.year < year);
+  public getBooksWrittenBeforeYear(maxYearAllowed: Number): Book[] {
+    return Books.filter((book) => book.year < maxYearAllowed);
   }
 
-  public getBooksByAuthor(author: String): Book[] {
-    return Books.filter((book) => book.author === author);
+  public getBooksByAuthor(requiredAuthor: String): Book[] {
+    return Books.filter((book) => book.author === requiredAuthor);
   }
 
-  public getBooksByAuthorsWithMoreBooksThan(minAmount: Number): Book[] {
-    console.log(minAmount);
-
+  public getBooksByAuthorsWithMoreBooksThan(minAmountInBooks: Number): Book[] {
     let popularAuthors = [];
     Authors.forEach((author) => {
-      console.log(
-        author.books.length,
-        author.books.length > minAmount,
-        ...author.books
-      );
-      if (author.books.length > minAmount) {
+      if (author.books.length > minAmountInBooks) {
         popularAuthors.push(author.name);
       }
     });
     return Books.filter((book) => popularAuthors.includes(book.author));
   }
 
-  public getBooksBySameAuthor(id: String): any {
-    console.log("get books with id ", id);
-
+  public getBooksWithSameAuthorOfBookId(id: String): any {
+    console.log("get book with id ", id);
     let targetAuthor = Books.find((book) => book.id === id).author;
-    // let output = [];
     return Authors.find((author) => author.name === targetAuthor).books;
   }
 }
-// //books
-// export function getBookById(booksFromDb: Book[], id: String): Book {
-//   return booksFromDb.find((book) => book.id === id);
-// }
 
-// export function getBooksWrittenBeforeYear(
-//   booksFromDb: Book[],
-//   year: Number
-// ): Book[] {
-//   return booksFromDb.filter((book) => book.year < year);
-// }
-
-// export function getBooksByAuthor(booksFromDb: Book[], author: String): Book[] {
-//   return booksFromDb.filter((book) => book.author === author);
-// }
-
-//author
-export function getAuthorById(id: String): Author {
-  return Authors.find((book) => book.id === id);
-}
-
-export function getLivingAuthors(): Author[] {
-  return Authors.filter((author) => author.alive.is_alive);
+export class AuthorsLogic {
+  public getAuthors(): Author[] {
+    return Authors;
+  }
+  public getAuthorByName(requiredName: String): Author {
+    return Authors.find((author) => author.name === requiredName);
+  }
+  public getAuthorById(id: String): Author {
+    return Authors.find((author) => author.id === id);
+  }
+  public getLivingAuthors(): Author[] {
+    return Authors.filter((author) => author.alive.isAlive);
+  }
 }
 
 export function createBook(newBook: Book) {
-  Authors.push(newBook);
+  console.log(Books.length);
+  console.log(newBook);
+  Books.push(newBook);
+  console.log(Books.length);
   return { ...newBook };
+}
+
+export function createAuthor(newAuthor: AuthorInput) {
+  Authors.push({ ...newAuthor });
+  return { ...Authors[Authors.length - 1] };
+}
+
+export function addBookToAuthorByName(name: String, title: string): Author {
+  console.log("Name:", name, "Title:", title);
+
+  return Authors.find((author) => {
+    if (author.name === name) {
+      author.books.push(title);
+      return author;
+    }
+  });
 }

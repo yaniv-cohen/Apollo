@@ -1,4 +1,4 @@
-export const Books = [
+export const BooksFromDb = [
   {
     author: "Chinua Achebe",
     country: "Nigeria",
@@ -1100,4 +1100,4 @@ export const Books = [
     id: "100",
   },
 ];
-export default Books;
+export default BooksFromDb;

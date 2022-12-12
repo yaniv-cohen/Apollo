@@ -589,12 +589,12 @@ const Authors = [
 Authors.forEach((author) => {
   if (!author.alive) {
     author.alive = {
-      is_alive: false,
+      isAlive: false,
       reason: deathReasons[Math.floor(Math.random() * deathReasons.length)],
     };
   } else
     author.alive = {
-      is_alive: true,
+      isAlive: true,
     };
 });
 

@@ -40,5 +40,14 @@ export type Author = {
   alive?: Maybe<Alive>;
 };
 
+export type AuthorInput = {
+  __typename?: "Author";
+  name?: Maybe<Scalars["String"]>;
+  books?: Maybe<BooksList>;
+  id?: Maybe<Scalars["ID"]>;
+  age?: Maybe<Scalars["Int"]>;
+  isAlive?: Boolean;
+  reason?: Maybe<String>;
+};
 export type BooksList = [String];
-export type Alive = { is_alive: Boolean; reason?: String };
+export type Alive = { isAlive: Boolean; reason?: String };
