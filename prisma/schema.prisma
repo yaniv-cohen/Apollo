@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//////////////////////////
+
+model institute {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  country  String
+  mathRank Int?
+  artsRank Int?
+  Diplomas Diploma[]
+  students User[]
+}
+
+model User {
+  id          Int         @id @default(autoincrement())
+  first_name  String      @default("default first name")
+  last_name   String      @default("default last name")
+  email       String
+  country     String?
+  age         Int?
+  gender      String      @default("None")
+  diplomas    Diploma[]
+  acoountType AcoountType @default(Basic)
+  institutes  institute[]
+
+  skills Skill[]
+}
+
+model Diploma {
+  id            Int        @id @default(autoincrement())
+  diplomaCode   Int        @unique
+  title         String
+  institute     institute? @relation(fields: [instituteName], references: [name])
+  diplomaType   String?
+  User          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int
+  instituteName String?
+}
+
+model Skill {
+  id          Int     @id @default(autoincrement())
+  name        String
+  category    String?
+  expereience String?
+  User        User[]
+}
+
+enum AcoountType {
+  Basic
+  Admin
+  Premium
+}
+
+// model Degree {
+//   id     Int    @id @default(autoincrement())
+//   title  String @default("defautTitle")
+//   code   Int    @default(0)
+//   User   User   @relation(fields: [userId], references: [id])
+//   userId Int
+// }
+
+// model University {
+//   id                 Int    @id @default(autoincrement())
+//   name               String @default("defaultName")
+//   location           String @default("defaultLoc")
+//   userFromUniversity User[]
+// }
