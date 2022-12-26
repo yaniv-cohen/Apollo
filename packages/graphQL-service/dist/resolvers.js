@@ -9,17 +9,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resolvers = void 0;
-// import { prisma } from ".";
+exports.resolvers = exports.getGraphqlPubSub = void 0;
 const dbFunctions_1 = require("./dbFunctions");
-// import { PubSub } from "apollo-server-express";
-// const pubsub = getGraphqlPubSub();
+let _pubSub = undefined;
+const getGraphqlPubSub = () => _pubSub;
+exports.getGraphqlPubSub = getGraphqlPubSub;
 exports.resolvers = {
+    Subscription: {
+        diplomaCreated: {
+            resolve: () => "test subscription!!!!",
+            subscribe: () => (0, exports.getGraphqlPubSub)().asyncIterator(["CREATED_DIPLOMA"]),
+        },
+    },
     // Subscription: {
-    //   diplomaCreated: {
-    //     resolve: (id: any) => id.newNewsItem,
-    //     // resolve: (id: any) => extractPayload(message).myText,
-    //     subscribe: () => getGraphqlPubSub()!.asyncIterator("CREATED_DIPLOMA"),
+    //   subscribeToOperationEntities: {
+    //     resolve: (message) => extractPayload(message).subscribeToOperationEntities,
+    //     subscribe: () => getGraphqlPubSub().asyncIterator(["OPERATION_SUBSCRIPTION"]),
     //   },
     // },
     Mutation: {
@@ -38,15 +43,25 @@ exports.resolvers = {
         AddDiplomaToUserId: (_, { userId, diplomaInput }) => __awaiter(void 0, void 0, void 0, function* () {
             console.log("AddDiplomaToUserId resolver data: ", userId, diplomaInput);
             const response = yield (0, dbFunctions_1.addDiplomaToUserId)(userId, diplomaInput);
-            // await pubsub?.publish("DIPLOMA_CREATED", "a diploma was created");
+            yield (_pubSub === null || _pubSub === void 0 ? void 0 : _pubSub.publish("CREATED_DIPLOMA", "A diploma was created!!!!"));
             return response;
         }),
-        ConnectDiplomaToUni: (_, { diplomaId, universityId }) => __awaiter(void 0, void 0, void 0, function* () {
-            console.log("ConnectDiplomaToUni resolver data: ", diplomaId, universityId);
-            const response = yield (0, dbFunctions_1.connectDiplomaToUni)({ diplomaId, universityId });
-            // await pubsub?.publish("DIPLOMA_CREATED", "a diploma was created");
-            return response;
-        }),
+        // ConnectDiplomaToUniversity: async (
+        //   _: unknown,
+        //   { diplomaId, universityId }: { diplomaId: number; universityId: number }
+        // ) => {
+        //   console.log(
+        //     "ConnectDiplomaToUni resolver data: ",
+        //     diplomaId,
+        //     universityId
+        //   );
+        //   // const response = await connectDiplomaToUniversity({
+        //   //   diplomaId,
+        //   //   universityId,
+        //   // });
+        //   // await pubsub?.publish("DIPLOMA_CREATED", "a diploma was created");
+        //   return response;
+        // },
         // AddDiplomaToUserIds: async (
         //   _: unknown,
         //   {

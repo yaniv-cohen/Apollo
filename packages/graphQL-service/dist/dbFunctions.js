@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createUser = exports.getUsersByDiplomaTitle = exports.connectDiplomaToUni = exports.addDiplomaToUserId = exports.deleteDiploma = exports.deleteUser = exports.updateColumnInUserById = exports.getAllDiplomas = exports.getAllUsersByColumn = exports.getAllUniversities = exports.getAllUsers = exports.getUserByID = exports.getDiplomaById = void 0;
+exports.createUser = exports.getUsersByDiplomaTitle = exports.connectDiplomaToUniversity = exports.addDiplomaToUserId = exports.deleteDiploma = exports.deleteUser = exports.updateColumnInUserById = exports.getAllDiplomas = exports.getAllUsersByColumn = exports.getAllUniversities = exports.getAllUsers = exports.getUserByID = exports.getDiplomaById = void 0;
 const axios_1 = __importDefault(require("axios"));
 const kafkaHandler_1 = require("./kafkaHandler");
 const getDiplomaById = (diplomaId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -96,8 +96,8 @@ const addDiplomaToUserId = (userId, data) => __awaiter(void 0, void 0, void 0, f
     });
 });
 exports.addDiplomaToUserId = addDiplomaToUserId;
-const connectDiplomaToUni = (data) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("addDiplomaToUserId");
+const connectDiplomaToUniversity = (data) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("connectDiplomaToUniversity");
     return (0, kafkaHandler_1.sendRequestMessage)({
         action: "connect:diplomaToUniversity",
         id: data.diplomaId,
@@ -106,7 +106,7 @@ const connectDiplomaToUni = (data) => __awaiter(void 0, void 0, void 0, function
         itemType: "diploma",
     });
 });
-exports.connectDiplomaToUni = connectDiplomaToUni;
+exports.connectDiplomaToUniversity = connectDiplomaToUniversity;
 const getUsersByDiplomaTitle = (diplomaTitle) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("diplomaTItle axios:", diplomaTitle);
     const ans = (yield axios_1.default.get("http://localhost:5555/getUsersByDiplomaTitle?title=" + diplomaTitle)).data;

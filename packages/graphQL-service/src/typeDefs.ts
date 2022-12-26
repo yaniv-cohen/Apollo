@@ -65,6 +65,6 @@ type Query {
 }
 
 type Subscription {
-  diplomaCreated(diplomaId: Int): Diploma!
+  diplomaCreated: String!
   }
 `;

@@ -52,7 +52,7 @@ type Mutation {
 AddDiplomaToUserId(userId: Int!, diplomaInput: diplomaInput!) : String
 DeleteUser(userId: Int!): String
 DeleteDiploma(diplomaId: Int!): String
-ConnectDiplomaToUni(diplomaId: Int!): String
+ConnectDiplomaToUniversity(diplomaId: Int!): String
 UpdateColumnInUserById(userId: Int!, columnName:String!, newValue: StringOrInt): String
 }
 
@@ -68,6 +68,6 @@ type Query {
 }
 
 type Subscription {
-  diplomaCreated(diplomaId: Int): Diploma!
+  diplomaCreated: String!
   }
 `;
