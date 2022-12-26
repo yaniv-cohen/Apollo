@@ -17,6 +17,11 @@ export const getAllUsers = async () => {
 
   return axios.get("http://localhost:5555/getAllUsers");
 };
+export const getAllUniversities = async () => {
+  const response = await axios.get("http://localhost:5555/getAllUniversities");
+  // console.log(response.data);
+  return response.data;
+};
 export const getAllUsersByColumn = async (
   columnName: string,
   value: string
@@ -82,6 +87,17 @@ export const addDiplomaToUserId = async (
     id: userId,
     data: data,
     text: "please create a diploma",
+    itemType: "diploma",
+  });
+};
+export const connectDiplomaToUniversity = async (data: any) => {
+  console.log("connectDiplomaToUniversity");
+
+  return sendRequestMessage({
+    action: "connect:diplomaToUniversity",
+    id: data.diplomaId,
+    data: { data },
+    text: "please connect a diploma to uni ",
     itemType: "diploma",
   });
 };

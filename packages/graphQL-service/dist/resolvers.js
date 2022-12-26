@@ -12,14 +12,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.resolvers = void 0;
 // import { prisma } from ".";
 const dbFunctions_1 = require("./dbFunctions");
-const pubsubIniialiser_1 = require("./pubsubIniialiser");
+// import { PubSub } from "apollo-server-express";
+// const pubsub = getGraphqlPubSub();
 exports.resolvers = {
-    Subscription: {
-        userCreated: {
-            // More on pubsub below
-            subscribe: () => pubsubIniialiser_1.pubsub.asyncIterator(["DIPLOMA_CREATED"]),
-        },
-    },
+    // Subscription: {
+    //   diplomaCreated: {
+    //     resolve: (id: any) => id.newNewsItem,
+    //     // resolve: (id: any) => extractPayload(message).myText,
+    //     subscribe: () => getGraphqlPubSub()!.asyncIterator("CREATED_DIPLOMA"),
+    //   },
+    // },
     Mutation: {
         UpdateColumnInUserById: (_, { userId, columnName, newValue, }) => __awaiter(void 0, void 0, void 0, function* () {
             console.log("UpdateColumnInUserById resolver ", userId, columnName, newValue);
@@ -36,9 +38,13 @@ exports.resolvers = {
         AddDiplomaToUserId: (_, { userId, diplomaInput }) => __awaiter(void 0, void 0, void 0, function* () {
             console.log("AddDiplomaToUserId resolver data: ", userId, diplomaInput);
             const response = yield (0, dbFunctions_1.addDiplomaToUserId)(userId, diplomaInput);
-            pubsubIniialiser_1.pubsub.publish("DIPLOMA_CREATED", {
-                postCreated: { id: diplomaInput.diplomaCode },
-            });
+            // await pubsub?.publish("DIPLOMA_CREATED", "a diploma was created");
+            return response;
+        }),
+        ConnectDiplomaToUni: (_, { diplomaId, universityId }) => __awaiter(void 0, void 0, void 0, function* () {
+            console.log("ConnectDiplomaToUni resolver data: ", diplomaId, universityId);
+            const response = yield (0, dbFunctions_1.connectDiplomaToUni)({ diplomaId, universityId });
+            // await pubsub?.publish("DIPLOMA_CREATED", "a diploma was created");
             return response;
         }),
         // AddDiplomaToUserIds: async (
@@ -65,6 +71,11 @@ exports.resolvers = {
         // },
     },
     Query: {
+        GetAllUniversities: () => __awaiter(void 0, void 0, void 0, function* () {
+            const response = yield (0, dbFunctions_1.getAllUniversities)();
+            console.log("returning ", response[0]);
+            return response;
+        }),
         GetAllUsersByColumn: (_, { columnName, value }) => __awaiter(void 0, void 0, void 0, function* () {
             console.log("getting All users by ", columnName, value);
             const response = yield (0, dbFunctions_1.getAllUsersByColumn)(columnName, value);

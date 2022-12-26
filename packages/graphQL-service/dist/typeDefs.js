@@ -18,14 +18,18 @@ type Skill{
   expereience: String
   User:        [User]
 }
+type University{
+  id:          Int!
+  name:        String!
+location: String!
+Users: [User]
+}
 
 input diplomaInput {
   diplomaCode: Int!
   title:       String!
   diplomaType: String
 }
-
-
 
 input StringOrInt {
   stringValue: String
@@ -48,6 +52,7 @@ type Mutation {
 AddDiplomaToUserId(userId: Int!, diplomaInput: diplomaInput!) : String
 DeleteUser(userId: Int!): String
 DeleteDiploma(diplomaId: Int!): String
+ConnectDiplomaToUni(diplomaId: Int!): String
 UpdateColumnInUserById(userId: Int!, columnName:String!, newValue: StringOrInt): String
 }
 
@@ -59,9 +64,10 @@ type Query {
   GetAllDiplomas: [Diploma!]
   AllUsersFromCountry(desiredCountry : String!): [User]
   GetUsersByDiplomaTitle(diplomaTItle: String!): [User]
+  GetAllUniversities: [University]
 }
 
 type Subscription {
-  userCreated: String!
+  diplomaCreated(diplomaId: Int): Diploma!
   }
 `;

@@ -5,16 +5,15 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { ChakraProvider } from "@chakra-ui/react";
+
 import {
-  ApolloClient,
+  split,
+  HttpLink,
   InMemoryCache,
   ApolloProvider,
   gql,
-  useQuery,
-  useSubscription,
+  ApolloClient,
 } from "@apollo/client";
-
-import { split, HttpLink } from "@apollo/client";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { createClient } from "graphql-ws";
@@ -42,22 +41,6 @@ const wsLink = new GraphQLWsLink(
 // * A function that's called for each operation to execute
 // * The Link to use for an operation if the function returns a "truthy" value
 // * The Link to use for an operation if the function returns a "falsy" value
-const splitLink = split(
-  ({ query }) => {
-    const definition = getMainDefinition(query);
-    return (
-      definition.kind === "OperationDefinition" &&
-      definition.operation === "subscription"
-    );
-  },
-  wsLink,
-  httpLink
-);
-
-const client = new ApolloClient({
-  link: splitLink,
-  cache: new InMemoryCache(),
-});
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -67,12 +50,11 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <ApolloProvider client={client}>
-      <ChakraProvider>
-        <App />
-      </ChakraProvider>
-    </ApolloProvider>
-    ;
+    {/* <ApolloProvider client={client}> */}
+    <ChakraProvider>
+      <App />
+    </ChakraProvider>
+    {/* </ApolloProvider> */};
   </React.StrictMode>
 );
 

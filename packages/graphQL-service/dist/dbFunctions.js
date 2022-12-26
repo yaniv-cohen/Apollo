@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createUser = exports.getUsersByDiplomaTitle = exports.addDiplomaToUserId = exports.deleteDiploma = exports.deleteUser = exports.updateColumnInUserById = exports.getAllDiplomas = exports.getAllUsersByColumn = exports.getAllUsers = exports.getUserByID = exports.getDiplomaById = void 0;
+exports.createUser = exports.getUsersByDiplomaTitle = exports.connectDiplomaToUni = exports.addDiplomaToUserId = exports.deleteDiploma = exports.deleteUser = exports.updateColumnInUserById = exports.getAllDiplomas = exports.getAllUsersByColumn = exports.getAllUniversities = exports.getAllUsers = exports.getUserByID = exports.getDiplomaById = void 0;
 const axios_1 = __importDefault(require("axios"));
 const kafkaHandler_1 = require("./kafkaHandler");
 const getDiplomaById = (diplomaId) => __awaiter(void 0, void 0, void 0, function* () {
@@ -30,6 +30,12 @@ const getAllUsers = () => __awaiter(void 0, void 0, void 0, function* () {
     return axios_1.default.get("http://localhost:5555/getAllUsers");
 });
 exports.getAllUsers = getAllUsers;
+const getAllUniversities = () => __awaiter(void 0, void 0, void 0, function* () {
+    const response = yield axios_1.default.get("http://localhost:5555/getAllUniversities");
+    // console.log(response.data);
+    return response.data;
+});
+exports.getAllUniversities = getAllUniversities;
 const getAllUsersByColumn = (columnName, value) => __awaiter(void 0, void 0, void 0, function* () {
     const response = yield axios_1.default.get("http://localhost:5555/getAllUsersByColumn", {
         data: { columnName, value },
@@ -90,6 +96,17 @@ const addDiplomaToUserId = (userId, data) => __awaiter(void 0, void 0, void 0, f
     });
 });
 exports.addDiplomaToUserId = addDiplomaToUserId;
+const connectDiplomaToUni = (data) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("addDiplomaToUserId");
+    return (0, kafkaHandler_1.sendRequestMessage)({
+        action: "connect:diplomaToUniversity",
+        id: data.diplomaId,
+        data: { data },
+        text: "please connect a diploma to uni ",
+        itemType: "diploma",
+    });
+});
+exports.connectDiplomaToUni = connectDiplomaToUni;
 const getUsersByDiplomaTitle = (diplomaTitle) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("diplomaTItle axios:", diplomaTitle);
     const ans = (yield axios_1.default.get("http://localhost:5555/getUsersByDiplomaTitle?title=" + diplomaTitle)).data;

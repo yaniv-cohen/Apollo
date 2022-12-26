@@ -1,10 +1,12 @@
 // import { prisma } from ".";
 import {
   addDiplomaToUserId,
+  connectDiplomaToUni,
   createUser,
   deleteDiploma,
   deleteUser,
   getAllDiplomas,
+  getAllUniversities,
   getAllUsers,
   getAllUsersByColumn,
   getDiplomaById,
@@ -12,15 +14,20 @@ import {
   getUsersByDiplomaTitle,
   updateColumnInUserById,
 } from "./dbFunctions";
-import { pubsub } from "./pubsubIniialiser";
+// import { extractPayload, getGraphqlPubSub } from "./pubsubInstance";
+// import { pubsub } from "./pubsubInitialiser";
 import { CountryInput, DiplomaInput } from "./types";
+// import { PubSub } from "apollo-server-express";
+
+// const pubsub = getGraphqlPubSub();
 export const resolvers = {
-  Subscription: {
-    userCreated: {
-      // More on pubsub below
-      subscribe: () => pubsub.asyncIterator(["DIPLOMA_CREATED"]),
-    },
-  },
+  // Subscription: {
+  //   diplomaCreated: {
+  //     resolve: (id: any) => id.newNewsItem,
+  //     // resolve: (id: any) => extractPayload(message).myText,
+  //     subscribe: () => getGraphqlPubSub()!.asyncIterator("CREATED_DIPLOMA"),
+  //   },
+  // },
 
   Mutation: {
     UpdateColumnInUserById: async (
@@ -63,9 +70,24 @@ export const resolvers = {
     ) => {
       console.log("AddDiplomaToUserId resolver data: ", userId, diplomaInput);
       const response = await addDiplomaToUserId(userId, diplomaInput);
-      pubsub.publish("DIPLOMA_CREATED", {
-        postCreated: { id: diplomaInput.diplomaCode },
+      // await pubsub?.publish("DIPLOMA_CREATED", "a diploma was created");
+
+      return response;
+    },
+    ConnectDiplomaToUniversity: async (
+      _: unknown,
+      { diplomaId, universityId }: { diplomaId: number; universityId: number }
+    ) => {
+      console.log(
+        "ConnectDiplomaToUni resolver data: ",
+        diplomaId,
+        universityId
+      );
+      const response = await connectDiplomaToUniversity({
+        diplomaId,
+        universityId,
       });
+      // await pubsub?.publish("DIPLOMA_CREATED", "a diploma was created");
 
       return response;
     },
@@ -93,6 +115,12 @@ export const resolvers = {
     // },
   },
   Query: {
+    GetAllUniversities: async () => {
+      const response = await getAllUniversities();
+      console.log("returning ", response[0]);
+
+      return response;
+    },
     GetAllUsersByColumn: async (
       _: unknown,
       { columnName, value }: { columnName: string; value: string }
