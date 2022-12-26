@@ -17,9 +17,9 @@ export const kafka = new Kafka({
 });
 export const producer = kafka.producer();
 
-const extractSubscriptionContext = async () => {
-  return "aaaaaaaaaa";
-};
+// const extractSubscriptionContext = async () => {
+//   return "aaaaaaaaaa";
+// };
 
 async function startApolloServer() {
   await producer.connect();
@@ -32,11 +32,11 @@ async function startApolloServer() {
       schema,
       execute,
       subscribe,
-      onConnect: extractSubscriptionContext,
+      // onConnect: extractSubscriptionContext,
     },
     {
       server: httpServer,
-      path: "/",
+      path: "/graphql",
     }
   );
   const plugins = [
@@ -61,8 +61,9 @@ async function startApolloServer() {
   await server.start();
   server.applyMiddleware({
     app,
-    path: "/",
+    path: "/graphql",
   });
+  // console.log(server.getMiddleware.toString());
 
   await new Promise<void>((resolve) =>
     httpServer.listen({ port: 4005 }, resolve)
