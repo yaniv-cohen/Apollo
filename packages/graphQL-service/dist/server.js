@@ -29,9 +29,9 @@ exports.kafka = new kafkajs_1.Kafka({
     brokers: [KafkaPort],
 });
 exports.producer = exports.kafka.producer();
-const extractSubscriptionContext = () => __awaiter(void 0, void 0, void 0, function* () {
-    return "aaaaaaaaaa";
-});
+// const extractSubscriptionContext = async () => {
+//   return "aaaaaaaaaa";
+// };
 function startApolloServer() {
     return __awaiter(this, void 0, void 0, function* () {
         yield exports.producer.connect();
@@ -41,10 +41,10 @@ function startApolloServer() {
             schema,
             execute: graphql_1.execute,
             subscribe: graphql_1.subscribe,
-            onConnect: extractSubscriptionContext,
+            // onConnect: extractSubscriptionContext,
         }, {
             server: httpServer,
-            path: "/",
+            path: "/graphql",
         });
         const plugins = [
             (0, apollo_server_core_1.ApolloServerPluginDrainHttpServer)({ httpServer }),
@@ -70,8 +70,9 @@ function startApolloServer() {
         yield server.start();
         server.applyMiddleware({
             app,
-            path: "/",
+            path: "/graphql",
         });
+        // console.log(server.getMiddleware.toString());
         yield new Promise((resolve) => httpServer.listen({ port: 4005 }, resolve));
         console.log(`🚀 Server ready at http://localhost:4005${server.graphqlPath}`);
     });
